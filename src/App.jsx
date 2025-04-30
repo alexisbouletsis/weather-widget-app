@@ -16,6 +16,7 @@ function App() {
   const [weather, setWeather] = useState({});
   const [isFavorite, setIsFavorite] = useState(false);
   const [favorites, setFavorites] = useState([]);
+  const [error, setError] = useState("");
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && query.trim() !== "") {
@@ -23,24 +24,40 @@ function App() {
     }
   };
 
-  const search = evt => {
+  const search = async (evt) => {
 
-    if (evt) evt.preventDefault(); // Prevents default behavior
+    if (evt) evt.preventDefault();
 
+    if (!api.key) {
+      console.error("API key is missing.");
+      setError("API key is missing.");
+      return;
+    }
 
+    if (!query.trim()) {
+      setError("Please enter a city name.");
+      return;
+    }
 
-    // if (!query.trim()) {
-    //   console.log("Please enter a city name.");
-    //   return;
-    // }
-    fetch(`${api.base}weather?q=${query}&units=metric&APPID=${api.key}`)
-      .then(res => res.json())
-      .then(result => {
+    try {
+      const response = await fetch(`${api.base}weather?q=${encodeURIComponent(query)}&units=metric&APPID=${api.key}`);
+      const result = await response.json();
+
+      if (response.ok) {
         setQuery('');
-        console.log(result);
         setShowCard(true);
         setWeather(result);
-      });
+        setError("");
+        console.log(result);
+      } else {
+        setError(result.message.toUpperCase() || "Failed to fetch weather data.");
+        setShowCard(false);
+      }
+    } catch (err) {
+      console.error("Error fetching weather data:", err);
+      setError("Network error. Please try again later.");
+      setShowCard(false);
+    }
 
   };
 
@@ -81,6 +98,26 @@ function App() {
     );
   }
 
+  const dateBuilder = (d) => {
+    const months = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+
+    const days = [
+      "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+    ];
+
+    let day = days[d.getDay()];
+    let date = d.getDate();
+    let month = months[d.getMonth()];
+    let year = d.getFullYear();
+
+    return `${day}, ${date} ${month} ${year}`;
+
+  }
+
+
 
   return (
     <div className="image">
@@ -97,21 +134,25 @@ function App() {
       )}
 
       <div className="content">
-        <div className="searchBar">
-          <input
-            type="text"
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className="searchInput"
-            placeholder="Search..."
-          />
-          <button className="btn" onClick={handleClick}>
-            Show favorites
-          </button>
+        <div className="searchContainer">
+          <div className="searchBar">
+            <input
+              type="text"
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="searchInput"
+              placeholder="Search..."
+            />
+            <button className="btn" onClick={handleClick}>
+              Show favorites
+            </button>
+          </div>
+
+          {error && <div className="error">{error}</div>}
         </div>
 
-        {showCard && (
+        {showCard && weather && weather.weather && weather.weather[0] && (
           <div className="centerContainer">
             <div className="card">
 
@@ -122,6 +163,7 @@ function App() {
                 />
               </button>
 
+              <p>{dateBuilder(new Date())}</p>
               <div className="text-5xl pt-6">
                 {getWeatherIcon(weather.weather[0].main)}
               </div>

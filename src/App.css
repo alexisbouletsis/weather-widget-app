@@ -29,7 +29,7 @@ html {
   border-radius: 0.5rem;
   width: 400px;
   height: 280px;
-  background-color: red;
+  background-color: white;
   position: relative;
 }
 
@@ -49,23 +49,32 @@ html {
   align-items: center;
 }
 
+.searchContainer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
 .searchBar {
-  position: absolute;
   display: flex;
   justify-content: center;
   align-items: center;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 600px;
   gap: 2rem;
+  position: relative;
+  /* changed from absolute */
+  top: 0;
+  /* removed fixed top positioning */
+  transform: none;
+  /* remove transform from centering */
+  width: auto;
+  /* let it size naturally */
+  margin-top: 20px;
+  /* space from top of screen */
 }
 
 .searchInput {
-  position: absolute;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
   width: 24rem;
   height: 3rem;
   appearance: none;
@@ -91,7 +100,6 @@ html {
 
 .btn {
   position: absolute;
-  top: 20px;
   left: calc(50% + 220px);
   background-color: #3b82f6;
   color: #ffffff;
@@ -172,4 +180,15 @@ html {
   border: none;
   border-radius: 2px;
   cursor: pointer;
+}
+
+.error {
+  color: #b30000;
+  background-color: #ffe6e6;
+  border: 1px solid #ff4d4d;
+  padding: 50px;
+  margin-top: 150px;
+  border-radius: 5px;
+  font-size: 28px;
+  text-align: center;
 }
