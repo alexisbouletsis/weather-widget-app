@@ -17,6 +17,8 @@ function App() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [favorites, setFavorites] = useState([]);
   const [error, setError] = useState("");
+  const [isCelsius, setIsCelsius] = useState(true);
+
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && query.trim() !== "") {
@@ -24,42 +26,36 @@ function App() {
     }
   };
 
-  const search = async (evt) => {
-
+  const search = (evt, cityName) => {
     if (evt) evt.preventDefault();
 
-    if (!api.key) {
-      console.error("API key is missing.");
-      setError("API key is missing.");
-      return;
-    }
+    const city = cityName || query;
 
-    if (!query.trim()) {
+    if (!city.trim()) {
       setError("Please enter a city name.");
+      setShowCard(false);
       return;
     }
 
-    try {
-      const response = await fetch(`${api.base}weather?q=${encodeURIComponent(query)}&units=metric&APPID=${api.key}`);
-      const result = await response.json();
-
-      if (response.ok) {
-        setQuery('');
-        setShowCard(true);
-        setWeather(result);
-        setError("");
-        console.log(result);
-      } else {
-        setError(result.message.toUpperCase() || "Failed to fetch weather data.");
+    fetch(`${api.base}weather?q=${city}&units=metric&APPID=${api.key}`)
+      .then(res => res.json())
+      .then(result => {
+        if (result.cod !== 200) {
+          setError(result.message.toUpperCase() || "Failed to fetch weather data.");
+          setShowCard(false);
+        } else {
+          setQuery('');
+          setError('');
+          setShowCard(true);
+          setWeather(result);
+        }
+      })
+      .catch(err => {
+        setError("An unexpected error occurred.");
         setShowCard(false);
-      }
-    } catch (err) {
-      console.error("Error fetching weather data:", err);
-      setError("Network error. Please try again later.");
-      setShowCard(false);
-    }
-
+      });
   };
+
 
   const getWeatherIcon = (condition) => {
     switch (condition.toLowerCase()) {
@@ -126,8 +122,20 @@ function App() {
         <ul className={`sideBar ${showSideBar ? 'open' : ''}`}>
           {favorites.map(item => (
             <li key={item} className="favoriteItem">
-              {item}
-              <button className="deleteFav" onClick={() => deleteFavorite(item)}>X</button>
+              <span
+                className="cityName"
+                onClick={() => {
+                  setQuery(item);
+                  search(null, item);
+                }}
+                style={{ cursor: "pointer", flex: 1, textAlign: "center" }}
+              >
+                {item}
+              </span>
+              <button className="deleteFav" onClick={(e) => {
+                e.stopPropagation();
+                deleteFavorite(item);
+              }}>X</button>
             </li>
           ))}
         </ul>
@@ -156,19 +164,26 @@ function App() {
           <div className="centerContainer">
             <div className="card">
 
+
               <button className="favorites" onClick={() => { addToFavorites(weather.name) }}>
                 <img
                   src={favorites.includes(weather.name) ? "/src/assets/star-colored.png" : "/src/assets/star-blank.png"}
                   alt="Favorite"
                 />
               </button>
-
+              <button className="toggleBtn" onClick={() => setIsCelsius(prev => !prev)}>
+                {isCelsius ? "°F" : "°C"}
+              </button>
               <p>{dateBuilder(new Date())}</p>
               <div className="text-5xl pt-6">
                 {getWeatherIcon(weather.weather[0].main)}
               </div>
-              <div>{weather.main.temp}°C</div>
-              <div className="location">{weather.name}, {weather.sys.country}</div>
+              <div>
+                {isCelsius
+                  ? `${weather.main.temp}°C`
+                  : `${(weather.main.temp * 9 / 5 + 32).toFixed(1)}°F`}
+              </div>
+              <div>{weather.name}, {weather.sys.country}</div>
 
               <div className="weatherInfo">
                 <div className="flex flex-col items-center w-1/2">
