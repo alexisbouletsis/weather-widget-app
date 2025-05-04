@@ -28,4 +28,3 @@ A sleek and responsive weather widget built with **React** that allows users to 
 - Fetch API 
 - HTML5 & CSS
 
-- 
