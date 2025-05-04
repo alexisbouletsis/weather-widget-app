@@ -171,9 +171,23 @@ function App() {
                   alt="Favorite"
                 />
               </button>
-              <button className="toggleBtn" onClick={() => setIsCelsius(prev => !prev)}>
-                {isCelsius ? "°F" : "°C"}
-              </button>
+              <div className="unitToggleWrapper">
+                <label className="switch">
+                  <input
+                    type="checkbox"
+                    checked={!isCelsius}
+                    onChange={() => {
+                      setIsCelsius(prev => !prev);
+                      setUnit(prev => (prev === "metric" ? "imperial" : "metric"));
+                    }}
+                  />
+                  <span
+                    className="slider round"
+                    data-label={isCelsius ? "°C" : "°F"}
+                  ></span>
+                </label>
+              </div>
+
               <p>{dateBuilder(new Date())}</p>
               <div className="text-5xl pt-6">
                 {getWeatherIcon(weather.weather[0].main)}
