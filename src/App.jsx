@@ -20,6 +20,8 @@ function App() {
   });
   const [error, setError] = useState("");
   const [isCelsius, setIsCelsius] = useState(true);
+  const [showMessage, setShowMessage] = useState(true);
+
 
   useEffect(() => {
     const savedFavorites = localStorage.getItem('favorites');
@@ -62,6 +64,7 @@ function App() {
           setError('');
           setShowCard(true);
           setWeather(result);
+          setShowMessage(false);
         }
       })
       .catch(err => {
@@ -157,6 +160,11 @@ function App() {
       )}
 
       <div className="content">
+        {showMessage && (
+          <div className="centerMessage">
+            Type a city to discover today's weather update.
+          </div>
+        )}
         <div className="searchContainer">
           <div className="searchBar">
             <input

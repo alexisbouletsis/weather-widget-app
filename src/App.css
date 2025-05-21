@@ -123,6 +123,22 @@ html {
   padding: 20px;
 }
 
+.centerMessage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 20px;
+  font-weight: bold;
+  color: white;
+  background-color: rgba(151, 26, 26, 1);
+  padding: 20px 30px;
+  border-radius: 12px;
+  z-index: 10;
+  text-align: center;
+}
+
+
 .sideBar {
   position: fixed;
   right: -250px;
