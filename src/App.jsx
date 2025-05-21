@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 
 
@@ -15,9 +14,24 @@ function App() {
   const [query, setQuery] = useState("");
   const [weather, setWeather] = useState({});
   const [isFavorite, setIsFavorite] = useState(false);
-  const [favorites, setFavorites] = useState([]);
+  const [favorites, setFavorites] = useState(() => {
+    const saved = localStorage.getItem('favorites');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [error, setError] = useState("");
   const [isCelsius, setIsCelsius] = useState(true);
+
+  useEffect(() => {
+    const savedFavorites = localStorage.getItem('favorites');
+    if (savedFavorites) {
+      setFavorites(JSON.parse(savedFavorites));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+  }, [favorites]);
+
 
 
   const handleKeyDown = (e) => {
@@ -27,7 +41,7 @@ function App() {
   };
 
   const search = (evt, cityName) => {
-    if (evt) evt.preventDefault();
+    if (evt?.preventDefault) evt.preventDefault();
 
     const city = cityName || query;
 
@@ -125,8 +139,9 @@ function App() {
               <span
                 className="cityName"
                 onClick={() => {
-                  setQuery(item);
+                  console.log("You clicked:", item);
                   search(null, item);
+                  console.log("Clicked", item);
                 }}
                 style={{ cursor: "pointer", flex: 1, textAlign: "center" }}
               >
